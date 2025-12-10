@@ -1,4 +1,5 @@
 import { eq, and, desc, asc, sql, inArray } from "drizzle-orm";
+import { mysqlTable, alias } from "drizzle-orm/mysql-core";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, 
@@ -311,18 +312,21 @@ export async function deleteField(id: number) {
 // Match queries
 export async function getTournamentMatches(tournamentId: number) {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) throw new Error("Database not available");
+  
+  const team1 = alias(teams, "team1");
+  const team2 = alias(teams, "team2");
   
   const result = await db
     .select({
       match: matches,
-      team1: teams,
-      team2: teams,
+      team1: team1,
+      team2: team2,
       field: fields,
     })
     .from(matches)
-    .leftJoin(teams, eq(matches.team1Id, teams.id))
-    .leftJoin(teams, eq(matches.team2Id, teams.id))
+    .leftJoin(team1, eq(matches.team1Id, team1.id))
+    .leftJoin(team2, eq(matches.team2Id, team2.id))
     .leftJoin(fields, eq(matches.fieldId, fields.id))
     .where(eq(matches.tournamentId, tournamentId))
     .orderBy(asc(matches.scheduledTime));
@@ -494,4 +498,116 @@ export async function deleteSponsor(id: number) {
   if (!db) throw new Error("Database not available");
   
   await db.delete(sponsors).where(eq(sponsors.id, id));
+}
+
+// ============================================================================
+// CALENDAR & MATCH GENERATION
+// ============================================================================
+
+export async function generatePoolMatches(params: {
+  tournamentId: number;
+  poolId?: number;
+  startTime: Date;
+  matchDuration: number;
+  breakDuration: number;
+  fieldIds: number[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { tournamentId, poolId, startTime, matchDuration, breakDuration, fieldIds } = params;
+
+  // Get teams from pool
+  const teams = poolId ? await getPoolTeams(poolId) : await getTournamentTeams(tournamentId);
+  
+  if (teams.length < 2) {
+    throw new Error("Au moins 2 équipes sont nécessaires pour générer des matchs");
+  }
+
+  // Generate round-robin matches (tous contre tous)
+  const matchList: Array<{ team1Id: number; team2Id: number }> = [];
+  
+  for (let i = 0; i < teams.length; i++) {
+    for (let j = i + 1; j < teams.length; j++) {
+      matchList.push({
+        team1Id: teams[i]!.id,
+        team2Id: teams[j]!.id,
+      });
+    }
+  }
+
+  // Distribute matches across fields and time slots
+  let currentTime = new Date(startTime);
+  let fieldIndex = 0;
+  let matchesCreated = 0;
+
+  const phaseId = poolId ? (await db.select().from(pools).where(eq(pools.id, poolId)).limit(1))[0]?.phaseId : null;
+
+  for (const match of matchList) {
+    const fieldId = fieldIds[fieldIndex % fieldIds.length];
+
+    const insertData: any = {
+      tournamentId,
+      team1Id: match.team1Id,
+      team2Id: match.team2Id,
+      scheduledTime: currentTime,
+      fieldId,
+      status: "scheduled",
+    };
+    
+    if (phaseId) insertData.phaseId = phaseId;
+    if (poolId) insertData.poolId = poolId;
+
+    await db.insert(matches).values(insertData);
+
+    matchesCreated++;
+    fieldIndex++;
+
+    // Move to next time slot when all fields are used
+    if (fieldIndex % fieldIds.length === 0) {
+      currentTime = new Date(currentTime.getTime() + (matchDuration + breakDuration) * 60000);
+    }
+  }
+
+  return matchesCreated;
+}
+
+export async function updateMatchSchedule(matchId: number, scheduledTime: Date, fieldId?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updates: any = { scheduledTime };
+  if (fieldId !== undefined) {
+    updates.fieldId = fieldId;
+  }
+
+  await db.update(matches).set(updates).where(eq(matches.id, matchId));
+}
+
+export async function getMatchesByField(tournamentId: number, fieldId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db
+    .select()
+    .from(matches)
+    .where(and(eq(matches.tournamentId, tournamentId), eq(matches.fieldId, fieldId!)))
+    .orderBy(matches.scheduledTime);
+}
+
+export async function getMatchesByTimeRange(tournamentId: number, startTime: Date, endTime: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db
+    .select()
+    .from(matches)
+    .where(
+      and(
+        eq(matches.tournamentId, tournamentId),
+        sql`${matches.scheduledTime} >= ${startTime}`,
+        sql`${matches.scheduledTime} <= ${endTime}`
+      )
+    )
+    .orderBy(matches.scheduledTime);
 }

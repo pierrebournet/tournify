@@ -378,6 +378,25 @@ export const appRouter = router({
         return await db.getTournamentMatches(input.tournamentId);
       }),
 
+    generate: protectedProcedure
+      .input(
+        z.object({
+          tournamentId: z.number(),
+          poolId: z.number().optional(),
+          startTime: z.string(),
+          matchDuration: z.number(),
+          breakDuration: z.number(),
+          fieldIds: z.array(z.number()),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const generated = await db.generatePoolMatches({
+          ...input,
+          startTime: new Date(input.startTime),
+        });
+        return { count: generated };
+      }),
+
     create: protectedProcedure
       .input(
         z.object({

@@ -199,3 +199,35 @@
 - [x] Mise à jour automatique après saisie de scores
 - [x] Affichage des statistiques (J, V, N, D, BP, BC, Diff, Pts)
 - [ ] Qualification automatique vers les brackets selon les règles
+
+## Nouvelles Fonctionnalités - Calendrier Intelligent
+
+### Génération Automatique des Matchs
+- [x] Algorithme de génération des matchs de poules (round-robin)
+- [ ] Génération des matchs de brackets selon les qualifications
+- [x] Optimisation de la répartition sur les terrains disponibles
+- [x] Respect des contraintes de rotation des équipes
+- [x] Configuration de l'heure de début et durée des matchs
+- [x] Gestion des pauses entre les matchs
+
+### Interface de Grille Horaire Visuelle
+- [x] Affichage en grille par terrain et par heure
+- [x] Carte de match avec équipes, heure, terrain
+- [x] Indicateurs visuels de statut (à venir, en cours, terminé)
+- [ ] Filtres par poule/bracket/terrain
+- [ ] Vue par jour pour tournois multi-jours
+- [x] Responsive design pour tablettes
+
+### Gestion Manuelle avec Drag & Drop
+- [x] Drag & drop des matchs entre terrains
+- [ ] Modification de l'horaire par glisser-déposer
+- [ ] Ajout manuel de pauses
+- [ ] Ajout d'événements spéciaux (cérémonie, pause déjeuner)
+- [ ] Validation des conflits (équipe jouant 2 matchs simultanément)
+- [ ] Sauvegarde automatique des modifications
+
+### Export et Partage
+- [ ] Export du calendrier en PDF
+- [ ] Export en format CSV/Excel
+- [ ] Affichage sur le site public
+- [ ] Notifications de changements d'horaire
