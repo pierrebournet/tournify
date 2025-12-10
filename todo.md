@@ -174,3 +174,28 @@
 - [ ] Tests de performance avec tournois de grande envergure (100+ équipes)
 - [ ] Validation de la mise à jour en temps réel
 - [ ] Tests de compatibilité multi-navigateurs
+
+## Nouvelles Fonctionnalités - Système de Classement Avancé
+
+### Interface de Gestion des Poules
+- [x] Bouton "Ajouter une phase" avec sélection du type (Poule/Bracket/Amical)
+- [x] Interface de création de poule avec nom et sélecteur d'emoji
+- [x] Zone de drag & drop pour assigner les équipes aux poules
+- [x] Affichage visuel des équipes non assignées
+- [x] Bouton "Tirage au sort" pour répartition automatique
+- [x] Sauvegarde automatique des assignations
+
+### Interface de Brackets d'Élimination
+- [x] Création de brackets avec nom personnalisé
+- [x] Sélection du type de bracket (Quarts, Demis, Finale, Match 3e place)
+- [ ] Configuration des règles de qualification depuis les poules
+- [ ] Arbre visuel des matchs d'élimination directe
+- [ ] Génération automatique des matchs de bracket
+
+### Calcul Automatique des Classements
+- [x] Tableau de classement par poule en temps réel
+- [x] Calcul des points (Victoire 3pts, Nul 1pt, Défaite 0pts)
+- [x] Critères de départage (différence de buts, buts marqués, confrontation directe)
+- [x] Mise à jour automatique après saisie de scores
+- [x] Affichage des statistiques (J, V, N, D, BP, BC, Diff, Pts)
+- [ ] Qualification automatique vers les brackets selon les règles
