@@ -34,7 +34,7 @@ export default function Home() {
               <Trophy className="h-16 w-16 text-primary" />
             </div>
             <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-              Tournify
+              TournaPro
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
               La plateforme complète pour organiser et gérer vos tournois sportifs
@@ -100,7 +100,7 @@ export default function Home() {
               Prêt à organiser votre prochain tournoi ?
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Rejoignez des milliers d'organisateurs qui font confiance à Tournify
+              Rejoignez des milliers d'organisateurs qui font confiance à TournaPro
             </p>
             <Button size="lg" className="text-lg px-8" asChild>
               <a href={getLoginUrl()}>Créer mon premier tournoi</a>
@@ -112,7 +112,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="container text-center text-sm text-muted-foreground">
-          <p>© 2025 Tournify. Plateforme de gestion de tournois sportifs.</p>
+          <p>© 2025 TournaPro. Plateforme de gestion de tournois sportifs.</p>
         </div>
       </footer>
     </div>

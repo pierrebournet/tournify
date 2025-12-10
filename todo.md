@@ -345,5 +345,13 @@
 - [x] Implémenter l'upload vers S3 avec storagePut
 - [x] Afficher le logo dans le tableau des équipes
 - [x] Afficher les logos dans les classements
-- [ ] Afficher les logos dans le calendrier
-- [ ] Afficher les logos sur la page publique
+- [x] Afficher les logos dans le calendrier (cartes de matchs)
+- [x] Afficher les logos sur la page publique (classements)
+- [x] Afficher les logos sur la page publique (calendrier)
+- [x] Afficher les logos sur la page publique (résultats)
+
+### Renommage de l'application
+- [x] Mettre à jour le nom dans package.json
+- [x] Mettre à jour le titre dans index.html
+- [x] Mettre à jour le nom dans les composants React
+- [x] VITE_APP_TITLE est une variable système (non modifiable)

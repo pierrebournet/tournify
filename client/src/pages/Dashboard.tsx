@@ -65,7 +65,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Trophy className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold">Tournify</h1>
+              <h1 className="text-2xl font-bold">TournaPro</h1>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground">
