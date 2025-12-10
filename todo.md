@@ -339,3 +339,11 @@
 ### Correction bug tirage au sort
 - [x] Corriger la fonction generatePoolMatches pour inclure toutes les valeurs par défaut
 - [x] Tester le tirage au sort avec des équipes réelles
+
+### Upload de logos d'équipes
+- [x] Ajouter un bouton d'upload de logo dans le formulaire d'ajout d'équipe
+- [x] Implémenter l'upload vers S3 avec storagePut
+- [x] Afficher le logo dans le tableau des équipes
+- [x] Afficher les logos dans les classements
+- [ ] Afficher les logos dans le calendrier
+- [ ] Afficher les logos sur la page publique

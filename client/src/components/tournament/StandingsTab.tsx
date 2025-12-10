@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 import type { Tournament } from "@shared/types";
@@ -466,6 +467,7 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
                         <TableHeader>
                           <TableRow>
                             <TableHead className="w-12">#</TableHead>
+                            <TableHead className="w-12"></TableHead>
                             <TableHead>Équipe</TableHead>
                             <TableHead className="text-center">J</TableHead>
                             <TableHead className="text-center">V</TableHead>
@@ -481,6 +483,12 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
                           {standings.map((standing, index) => (
                             <TableRow key={standing.team.id}>
                               <TableCell className="font-bold">{index + 1}</TableCell>
+                              <TableCell>
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={standing.team.logoUrl || undefined} alt={standing.team.name} />
+                                  <AvatarFallback>{standing.team.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                </Avatar>
+                              </TableCell>
                               <TableCell className="font-medium">{standing.team.name}</TableCell>
                               <TableCell className="text-center">{standing.played}</TableCell>
                               <TableCell className="text-center">{standing.won}</TableCell>

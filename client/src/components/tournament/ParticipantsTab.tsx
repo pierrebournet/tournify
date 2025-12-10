@@ -1,14 +1,29 @@
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { trpc } from "@/lib/trpc";
 import { Plus, Trash2, Upload } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ParticipantsTabProps {
   tournamentId: number;
@@ -17,27 +32,42 @@ interface ParticipantsTabProps {
 export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) {
   const [isAddTeamOpen, setIsAddTeamOpen] = useState(false);
   const [isAddRefereeOpen, setIsAddRefereeOpen] = useState(false);
-  const [newTeam, setNewTeam] = useState({ name: "", email: "", country: "" });
+  const [newTeam, setNewTeam] = useState({
+    name: "",
+    email: "",
+    country: "",
+    locker: "",
+  });
   const [newReferee, setNewReferee] = useState({ name: "", email: "" });
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>("");
 
-  const { data: teams, isLoading: teamsLoading } = trpc.teams.list.useQuery({ tournamentId });
-  const { data: referees, isLoading: refereesLoading } = trpc.referees.list.useQuery({ tournamentId });
-
-  const utils = trpc.useUtils();
+  const { data: teams = [], isLoading: teamsLoading, refetch: refetchTeams } =
+    trpc.teams.list.useQuery({ tournamentId });
+  const { data: referees = [], refetch: refetchReferees } =
+    trpc.referees.list.useQuery({ tournamentId });
+  const { data: admins = [] } = trpc.admins.list.useQuery({ tournamentId });
 
   const createTeamMutation = trpc.teams.create.useMutation({
     onSuccess: () => {
-      toast.success("Équipe ajoutée");
+      toast.success("Équipe ajoutée avec succès");
       setIsAddTeamOpen(false);
-      setNewTeam({ name: "", email: "", country: "" });
-      utils.teams.list.invalidate({ tournamentId });
+      setNewTeam({ name: "", email: "", country: "", locker: "" });
+      setLogoFile(null);
+      setLogoPreview("");
+      refetchTeams();
+    },
+    onError: (error) => {
+      toast.error(`Erreur: ${error.message}`);
     },
   });
+
+  const uploadLogoMutation = trpc.teams.uploadLogo.useMutation();
 
   const deleteTeamMutation = trpc.teams.delete.useMutation({
     onSuccess: () => {
       toast.success("Équipe supprimée");
-      utils.teams.list.invalidate({ tournamentId });
+      refetchTeams();
     },
   });
 
@@ -46,20 +76,58 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
       toast.success("Arbitre ajouté");
       setIsAddRefereeOpen(false);
       setNewReferee({ name: "", email: "" });
-      utils.referees.list.invalidate({ tournamentId });
+      refetchReferees();
     },
   });
 
   const deleteRefereeMutation = trpc.referees.delete.useMutation({
     onSuccess: () => {
       toast.success("Arbitre supprimé");
-      utils.referees.list.invalidate({ tournamentId });
+      refetchReferees();
     },
   });
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddTeam = async () => {
+    try {
+      const result = await createTeamMutation.mutateAsync({
+        tournamentId,
+        ...newTeam,
+      });
+
+      // Upload logo if provided
+      if (logoFile && result.id) {
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const base64 = reader.result as string;
+          await uploadLogoMutation.mutateAsync({
+            teamId: result.id,
+            logoData: base64,
+            fileName: logoFile.name,
+          });
+          refetchTeams();
+        };
+        reader.readAsDataURL(logoFile);
+      }
+    } catch (error) {
+      // Error already handled in mutation
+    }
+  };
+
   return (
-    <Tabs defaultValue="teams" className="space-y-4">
-      <TabsList>
+    <Tabs defaultValue="teams" className="w-full">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="teams">Équipes</TabsTrigger>
         <TabsTrigger value="referees">Arbitres</TabsTrigger>
         <TabsTrigger value="admins">Administrateurs</TabsTrigger>
@@ -69,17 +137,12 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Équipes</CardTitle>
-                <CardDescription>Gérez les équipes participantes</CardDescription>
-              </div>
+              <CardTitle>Équipes inscrites</CardTitle>
               <Dialog open={isAddTeamOpen} onOpenChange={setIsAddTeamOpen}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Ajouter une équipe
-                  </Button>
-                </DialogTrigger>
+                <Button onClick={() => setIsAddTeamOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Ajouter une équipe
+                </Button>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Ajouter une équipe</DialogTitle>
@@ -87,30 +150,65 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
                       Remplissez les informations de l'équipe
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="team-name">Nom de l'équipe *</Label>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="name">Nom de l'équipe *</Label>
                       <Input
-                        id="team-name"
+                        id="name"
                         value={newTeam.name}
-                        onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
+                        onChange={(e) =>
+                          setNewTeam({ ...newTeam, name: e.target.value })
+                        }
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="team-email">Email</Label>
+                    <div className="grid gap-2">
+                      <Label htmlFor="logo">Logo de l'équipe</Label>
+                      <div className="flex items-center gap-4">
+                        {logoPreview && (
+                          <Avatar className="h-16 w-16">
+                            <AvatarImage src={logoPreview} alt="Logo preview" />
+                          </Avatar>
+                        )}
+                        <div className="flex-1">
+                          <Input
+                            id="logo"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoChange}
+                            className="cursor-pointer"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Email</Label>
                       <Input
-                        id="team-email"
+                        id="email"
                         type="email"
                         value={newTeam.email}
-                        onChange={(e) => setNewTeam({ ...newTeam, email: e.target.value })}
+                        onChange={(e) =>
+                          setNewTeam({ ...newTeam, email: e.target.value })
+                        }
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="team-country">Pays</Label>
+                    <div className="grid gap-2">
+                      <Label htmlFor="country">Pays</Label>
                       <Input
-                        id="team-country"
+                        id="country"
                         value={newTeam.country}
-                        onChange={(e) => setNewTeam({ ...newTeam, country: e.target.value })}
+                        onChange={(e) =>
+                          setNewTeam({ ...newTeam, country: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="locker">Vestiaire</Label>
+                      <Input
+                        id="locker"
+                        value={newTeam.locker}
+                        onChange={(e) =>
+                          setNewTeam({ ...newTeam, locker: e.target.value })
+                        }
                       />
                     </div>
                   </div>
@@ -119,11 +217,10 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
                       Annuler
                     </Button>
                     <Button
-                      onClick={() =>
-                        createTeamMutation.mutate({ tournamentId, ...newTeam })
-                      }
+                      onClick={handleAddTeam}
                       disabled={!newTeam.name || createTeamMutation.isPending}
                     >
+                      {logoFile && <Upload className="mr-2 h-4 w-4" />}
                       Ajouter
                     </Button>
                   </DialogFooter>
@@ -133,40 +230,47 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
           </CardHeader>
           <CardContent>
             {teamsLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Chargement...</div>
-            ) : teams && teams.length > 0 ? (
+              <p className="text-muted-foreground">Chargement...</p>
+            ) : teams.length === 0 ? (
+              <p className="text-muted-foreground">Aucune équipe inscrite</p>
+            ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Logo</TableHead>
                     <TableHead>Nom</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Pays</TableHead>
+                    <TableHead>Vestiaire</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {teams.map((team) => (
                     <TableRow key={team.id}>
+                      <TableCell>
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={team.logoUrl || undefined} alt={team.name} />
+                          <AvatarFallback>{team.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                      </TableCell>
                       <TableCell className="font-medium">{team.name}</TableCell>
                       <TableCell>{team.email || "-"}</TableCell>
                       <TableCell>{team.country || "-"}</TableCell>
+                      <TableCell>{team.locker || "-"}</TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => deleteTeamMutation.mutate({ id: team.id })}
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                Aucune équipe ajoutée
-              </div>
             )}
           </CardContent>
         </Card>
@@ -176,39 +280,31 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Arbitres</CardTitle>
-                <CardDescription>Gérez les arbitres du tournoi</CardDescription>
-              </div>
+              <CardTitle>Arbitres</CardTitle>
               <Dialog open={isAddRefereeOpen} onOpenChange={setIsAddRefereeOpen}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Ajouter un arbitre
-                  </Button>
-                </DialogTrigger>
+                <Button onClick={() => setIsAddRefereeOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Ajouter un arbitre
+                </Button>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Ajouter un arbitre</DialogTitle>
-                    <DialogDescription>
-                      Remplissez les informations de l'arbitre
-                    </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="referee-name">Nom *</Label>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="ref-name">Nom</Label>
                       <Input
-                        id="referee-name"
+                        id="ref-name"
                         value={newReferee.name}
                         onChange={(e) =>
                           setNewReferee({ ...newReferee, name: e.target.value })
                         }
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="referee-email">Email</Label>
+                    <div className="grid gap-2">
+                      <Label htmlFor="ref-email">Email</Label>
                       <Input
-                        id="referee-email"
+                        id="ref-email"
                         type="email"
                         value={newReferee.email}
                         onChange={(e) =>
@@ -218,14 +314,20 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsAddRefereeOpen(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsAddRefereeOpen(false)}
+                    >
                       Annuler
                     </Button>
                     <Button
                       onClick={() =>
-                        createRefereeMutation.mutate({ tournamentId, ...newReferee })
+                        createRefereeMutation.mutate({
+                          tournamentId,
+                          ...newReferee,
+                        })
                       }
-                      disabled={!newReferee.name || createRefereeMutation.isPending}
+                      disabled={!newReferee.name}
                     >
                       Ajouter
                     </Button>
@@ -235,9 +337,9 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
             </div>
           </CardHeader>
           <CardContent>
-            {refereesLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Chargement...</div>
-            ) : referees && referees.length > 0 ? (
+            {referees.length === 0 ? (
+              <p className="text-muted-foreground">Aucun arbitre</p>
+            ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -249,25 +351,23 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
                 <TableBody>
                   {referees.map((referee) => (
                     <TableRow key={referee.id}>
-                      <TableCell className="font-medium">{referee.name}</TableCell>
+                      <TableCell>{referee.name}</TableCell>
                       <TableCell>{referee.email || "-"}</TableCell>
                       <TableCell className="text-right">
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => deleteRefereeMutation.mutate({ id: referee.id })}
+                          onClick={() =>
+                            deleteRefereeMutation.mutate({ id: referee.id })
+                          }
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                Aucun arbitre ajouté
-              </div>
             )}
           </CardContent>
         </Card>
@@ -277,14 +377,30 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
         <Card>
           <CardHeader>
             <CardTitle>Administrateurs</CardTitle>
-            <CardDescription>
-              Gérez les co-organisateurs du tournoi
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              Fonctionnalité à venir
-            </div>
+            {admins.length === 0 ? (
+              <p className="text-muted-foreground">Aucun administrateur</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Permissions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {admins.map((admin) => (
+                    <TableRow key={admin.id}>
+                      <TableCell>{admin.userName}</TableCell>
+                      <TableCell>{admin.userEmail || "-"}</TableCell>
+                      <TableCell>{admin.permissions || "Toutes"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
       </TabsContent>
