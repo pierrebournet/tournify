@@ -548,15 +548,18 @@ export async function generatePoolMatches(params: {
 
     const insertData: any = {
       tournamentId,
+      phaseId: phaseId || null,
+      poolId: poolId || null,
+      bracketId: null,
       team1Id: match.team1Id,
       team2Id: match.team2Id,
+      score1: null,
+      score2: null,
       scheduledTime: currentTime,
       fieldId,
       status: "scheduled",
+      matchNumber: null,
     };
-    
-    if (phaseId) insertData.phaseId = phaseId;
-    if (poolId) insertData.poolId = poolId;
 
     await db.insert(matches).values(insertData);
 

@@ -335,3 +335,7 @@
 ### Amélioration UX - Email optionnel pour les équipes
 - [x] Retirer la validation email obligatoire dans le formulaire d'ajout d'équipe
 - [x] Tester l'ajout d'équipe sans email
+
+### Correction bug tirage au sort
+- [x] Corriger la fonction generatePoolMatches pour inclure toutes les valeurs par défaut
+- [x] Tester le tirage au sort avec des équipes réelles
