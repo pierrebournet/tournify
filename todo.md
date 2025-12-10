@@ -231,3 +231,32 @@
 - [ ] Export en format CSV/Excel
 - [ ] Affichage sur le site public
 - [ ] Notifications de changements d'horaire
+
+## Nouvelles Fonctionnalités - Saisie de Scores
+
+### Interface de Saisie Rapide
+- [x] Liste des matchs avec filtres (tous, à venir, en cours, terminés)
+- [x] Carte de match avec champs de saisie de score
+- [x] Validation des scores (0-99)
+- [x] Bouton de sauvegarde rapide
+- [x] Indicateur de statut du match (scheduled, in_progress, completed)
+- [x] Modification de scores existants
+
+### Mise à Jour Automatique des Classements
+- [x] Recalcul automatique après saisie de score
+- [x] Mise à jour en temps réel des statistiques d'équipe
+- [x] Application des règles de points (V=3, N=1, D=0)
+- [x] Mise à jour de la différence de buts
+- [x] Réorganisation automatique du classement
+
+### Barre de Progression et Statistiques
+- [x] Barre de progression des matchs terminés
+- [x] Pourcentage de complétion du tournoi
+- [x] Nombre de matchs par statut
+- [x] Statistiques globales (total buts, moyenne par match)
+- [ ] Meilleur buteur, meilleure défense
+
+### Export des Résultats
+- [ ] Export des résultats en PDF
+- [ ] Export en format CSV/Excel
+- [ ] Génération de rapport de tournoi
