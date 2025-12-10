@@ -355,3 +355,8 @@
 - [x] Mettre à jour le titre dans index.html
 - [x] Mettre à jour le nom dans les composants React
 - [x] VITE_APP_TITLE est une variable système (non modifiable)
+
+### Correction définitive bug SQL génération de matchs
+- [x] Vérifier la fonction generatePoolMatches dans db.ts
+- [x] S'assurer que tous les champs obligatoires ont des valeurs par défaut
+- [x] Tester la génération automatique de matchs

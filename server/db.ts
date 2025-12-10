@@ -543,12 +543,16 @@ export async function generatePoolMatches(params: {
 
   const phaseId = poolId ? (await db.select().from(pools).where(eq(pools.id, poolId)).limit(1))[0]?.phaseId : null;
 
+  if (!phaseId) {
+    throw new Error("Une phase est requise pour générer des matchs");
+  }
+
   for (const match of matchList) {
     const fieldId = fieldIds[fieldIndex % fieldIds.length];
 
     const insertData: any = {
       tournamentId,
-      phaseId: phaseId || null,
+      phaseId,
       poolId: poolId || null,
       bracketId: null,
       team1Id: match.team1Id,
