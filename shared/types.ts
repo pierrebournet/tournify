@@ -1,7 +1,2 @@
-/**
- * Unified type exports
- * Import shared types from this single entry point.
- */
-
-export type * from "../drizzle/schema";
-export * from "./_core/errors";
+// Re-export types from drizzle schema for easier imports
+export type { Tournament, Team, Match, User } from "../drizzle/schema";
