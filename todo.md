@@ -291,3 +291,13 @@
 - [ ] Filtrage des matchs par jour/terrain/poule
 - [ ] Vue diaporama pour affichage sur grand écran
 - [ ] Export PDF du classement pour impression
+
+## Nouvelles Fonctionnalités - Code QR
+
+### Génération de Code QR
+- [x] Installation de la bibliothèque qrcode.react
+- [x] Composant de génération de QR code à partir de l'URL publique
+- [x] Affichage du QR code dans un modal
+- [x] Bouton de téléchargement du QR code en PNG
+- [x] Option de personnalisation de la taille du QR code
+- [x] Ajout du logo du tournoi au centre du QR code (optionnel)
