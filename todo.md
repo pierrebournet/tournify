@@ -331,3 +331,7 @@
 - [x] Corriger l'insertion dans la table matches avec les valeurs par défaut manquantes
 - [x] Vérifier que tous les champs obligatoires sont fournis
 - [x] Tester la création de match manuellement
+
+### Amélioration UX - Email optionnel pour les équipes
+- [x] Retirer la validation email obligatoire dans le formulaire d'ajout d'équipe
+- [x] Tester l'ajout d'équipe sans email

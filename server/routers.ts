@@ -161,7 +161,7 @@ export const appRouter = router({
         z.object({
           tournamentId: z.number(),
           name: z.string().min(1),
-          email: z.string().email().optional(),
+          email: z.string().optional(),
           country: z.string().optional(),
           locker: z.string().optional(),
           isPaid: z.boolean().optional(),
@@ -495,7 +495,7 @@ export const appRouter = router({
         z.object({
           tournamentId: z.number(),
           name: z.string().min(1),
-          email: z.string().email().optional(),
+          email: z.string().optional(),
         })
       )
       .mutation(async ({ input }) => {
