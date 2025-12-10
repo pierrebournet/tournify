@@ -360,3 +360,6 @@
 - [x] Vérifier la fonction generatePoolMatches dans db.ts
 - [x] S'assurer que tous les champs obligatoires ont des valeurs par défaut
 - [x] Tester la génération automatique de matchs
+
+## Bug Critique - Tirage au Sort
+- [x] Corriger le bug de duplication d'équipes lors du tirage au sort (ajoute 4 équipes à chaque clic au lieu de redistribuer les existantes)

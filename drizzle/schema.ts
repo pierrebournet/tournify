@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json, unique } from "drizzle-orm/mysql-core";
 import { relations } from "drizzle-orm";
 
 /**
@@ -119,7 +119,10 @@ export const poolTeams = mysqlTable("poolTeams", {
   poolId: int("poolId").notNull(),
   teamId: int("teamId").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  // Ensure a team can only be in one pool at a time
+  uniquePoolTeam: unique().on(table.poolId, table.teamId),
+}));
 
 /**
  * Brackets - Elimination rounds

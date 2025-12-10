@@ -15,6 +15,13 @@
       "when": 1765346774986,
       "tag": "0001_fantastic_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1765353786215,
+      "tag": "0002_optimal_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

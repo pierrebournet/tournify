@@ -101,6 +101,12 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
     { enabled: !!selectedPoolId }
   );
 
+  // Get all teams assigned to any pool in this phase
+  const { data: phaseAssignedTeams } = trpc.pools.getPhaseTeams.useQuery(
+    { phaseId: selectedPhaseId! },
+    { enabled: !!selectedPhaseId && currentPhase?.type === "pool" }
+  );
+
   const { data: standings } = trpc.pools.getStandings.useQuery(
     { poolId: selectedPoolId! },
     { enabled: !!selectedPoolId }
@@ -190,9 +196,9 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
   const handleRandomDraw = () => {
     if (!pools || !teams || !selectedPhaseId) return;
 
-    const unassignedTeams = teams.filter(
-      t => !poolTeams?.some(pt => pt.id === t.id)
-    );
+    // Use phaseAssignedTeams to get ALL teams assigned to this phase
+    const assignedTeamIds = phaseAssignedTeams?.map(t => t.id) || [];
+    const unassignedTeams = teams.filter(t => !assignedTeamIds.includes(t.id));
 
     if (unassignedTeams.length === 0) {
       toast.info("Toutes les équipes sont déjà assignées");
@@ -219,7 +225,8 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
     toast.success("Tirage au sort effectué");
   };
 
-  const assignedTeamIds = poolTeams?.map(t => t.id) || [];
+  // For display: show teams not assigned to ANY pool in this phase
+  const assignedTeamIds = phaseAssignedTeams?.map(t => t.id) || [];
   const unassignedTeams = teams?.filter(t => !assignedTeamIds.includes(t.id)) || [];
 
   return (

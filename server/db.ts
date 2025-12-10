@@ -251,7 +251,9 @@ export async function assignTeamToPool(poolId: number, teamId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  await db.insert(poolTeams).values({ poolId, teamId });
+  // Use onDuplicateKeyUpdate to avoid errors when team is already in pool
+  await db.insert(poolTeams).values({ poolId, teamId })
+    .onDuplicateKeyUpdate({ set: { poolId } });
 }
 
 export async function getPoolTeams(poolId: number) {
@@ -266,6 +268,28 @@ export async function getPoolTeams(poolId: number) {
     .from(poolTeams)
     .innerJoin(teams, eq(poolTeams.teamId, teams.id))
     .where(eq(poolTeams.poolId, poolId));
+  
+  return result.map(r => r.team);
+}
+
+export async function getPhaseAssignedTeams(phaseId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get all pools for this phase
+  const phasePools = await db.select().from(pools).where(eq(pools.phaseId, phaseId));
+  const poolIds = phasePools.map(p => p.id);
+  
+  if (poolIds.length === 0) return [];
+  
+  // Get all teams assigned to any pool in this phase
+  const result = await db
+    .select({
+      team: teams,
+    })
+    .from(poolTeams)
+    .innerJoin(teams, eq(poolTeams.teamId, teams.id))
+    .where(inArray(poolTeams.poolId, poolIds));
   
   return result.map(r => r.team);
 }

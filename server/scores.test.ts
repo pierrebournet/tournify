@@ -51,6 +51,13 @@ describe("Scores System", () => {
       order: 1,
     });
 
+    // Create field
+    const field = await caller.fields.create({
+      tournamentId: tournament.id,
+      name: "Field 1",
+      order: 1,
+    });
+
     // Create teams
     const team1 = await caller.teams.create({
       tournamentId: tournament.id,
@@ -71,6 +78,7 @@ describe("Scores System", () => {
       phaseId: phase.id,
       team1Id: team1.id,
       team2Id: team2.id,
+      fieldId: field.id,
       scheduledTime: scheduledTime.toISOString(),
     });
 
@@ -110,6 +118,12 @@ describe("Scores System", () => {
       order: 1,
     });
 
+    const field = await caller.fields.create({
+      tournamentId: tournament.id,
+      name: "Field 1",
+      order: 1,
+    });
+
     const team1 = await caller.teams.create({
       tournamentId: tournament.id,
       name: "Team X",
@@ -125,6 +139,7 @@ describe("Scores System", () => {
       phaseId: phase.id,
       team1Id: team1.id,
       team2Id: team2.id,
+      fieldId: field.id,
       scheduledTime: new Date().toISOString(),
     });
 
@@ -171,6 +186,12 @@ describe("Scores System", () => {
       name: "Poule A",
     });
 
+    const field = await caller.fields.create({
+      tournamentId: tournament.id,
+      name: "Field 1",
+      order: 1,
+    });
+
     // Create teams
     const team1 = await caller.teams.create({
       tournamentId: tournament.id,
@@ -195,6 +216,7 @@ describe("Scores System", () => {
       poolId: pool.id,
       team1Id: team1.id,
       team2Id: team2.id,
+      fieldId: field.id,
       scheduledTime: new Date().toISOString(),
     });
 
@@ -249,6 +271,12 @@ describe("Scores System", () => {
       name: "Poule A",
     });
 
+    const field = await caller.fields.create({
+      tournamentId: tournament.id,
+      name: "Field 1",
+      order: 1,
+    });
+
     const team1 = await caller.teams.create({
       tournamentId: tournament.id,
       name: "Team A",
@@ -270,6 +298,7 @@ describe("Scores System", () => {
       poolId: pool.id,
       team1Id: team1.id,
       team2Id: team2.id,
+      fieldId: field.id,
       scheduledTime: new Date().toISOString(),
     });
 

@@ -1,0 +1,9 @@
+{
+  "query": "DELETE t1 FROM poolTeams t1\nINNER JOIN poolTeams t2 \nWHERE t1.id < t2.id \nAND t1.poolId = t2.poolId \nAND t1.teamId = t2.teamId",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2jmBhHtNbTGMJ6j.5086f6d1f307 --database gXdoY5iEw4zTFENQTZG3YD --execute DELETE t1 FROM poolTeams t1\nINNER JOIN poolTeams t2 \nWHERE t1.id < t2.id \nAND t1.poolId = t2.poolId \nAND t1.teamId = t2.teamId",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 134
+}

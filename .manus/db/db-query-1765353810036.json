@@ -1,0 +1,22 @@
+{
+  "query": "SHOW CREATE TABLE poolTeams",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2jmBhHtNbTGMJ6j.5086f6d1f307 --database gXdoY5iEw4zTFENQTZG3YD --execute SHOW CREATE TABLE poolTeams",
+  "rows": [
+    {
+      "Table": "poolTeams",
+      "Create Table": "CREATE TABLE `poolTeams` ("
+    }
+  ],
+  "messages": [
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,",
+    "  `poolId` int(11) NOT NULL,",
+    "  `teamId` int(11) NOT NULL,",
+    "  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,",
+    "  UNIQUE KEY `poolTeams_poolId_teamId_unique` (`poolId`,`teamId`)",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=60001"
+  ],
+  "stdout": "Table\tCreate Table\npoolTeams\tCREATE TABLE `poolTeams` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `poolId` int(11) NOT NULL,\n  `teamId` int(11) NOT NULL,\n  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`) /*T![clustered_index] CLUSTERED */,\n  UNIQUE KEY `poolTeams_poolId_teamId_unique` (`poolId`,`teamId`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=60001\n",
+  "stderr": "",
+  "execution_time_ms": 74
+}

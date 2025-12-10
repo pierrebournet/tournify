@@ -1,0 +1,1 @@
+ALTER TABLE `poolTeams` ADD CONSTRAINT `poolTeams_poolId_teamId_unique` UNIQUE(`poolId`,`teamId`);

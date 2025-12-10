@@ -324,6 +324,12 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.calculatePoolStandings(input.poolId);
       }),
+
+    getPhaseTeams: protectedProcedure
+      .input(z.object({ phaseId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getPhaseAssignedTeams(input.phaseId);
+      }),
   }),
 
   brackets: router({
