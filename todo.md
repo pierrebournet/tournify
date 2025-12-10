@@ -301,3 +301,26 @@
 - [x] Bouton de téléchargement du QR code en PNG
 - [x] Option de personnalisation de la taille du QR code
 - [x] Ajout du logo du tournoi au centre du QR code (optionnel)
+
+## Nouvelles Fonctionnalités - Système de Notifications
+
+### Backend - Notifications automatiques
+- [x] Notification lors de la création d'un nouveau tournoi (à l'organisateur)
+- [ ] Notification lors de l'ajout d'une équipe (à l'organisateur)
+- [ ] Notification lors de la modification d'horaire de match (aux équipes concernées)
+- [x] Notification lors de la saisie d'un nouveau score (aux équipes concernées)
+- [ ] Notification lors de la publication du calendrier (à toutes les équipes)
+- [ ] Notification de rappel avant un match (30 min avant)
+
+### Interface de gestion
+- [ ] Paramètres de notifications dans l'onglet Général
+- [ ] Toggle pour activer/désactiver les notifications
+- [ ] Sélection des types de notifications à envoyer
+- [ ] Historique des notifications envoyées
+- [ ] Test d'envoi de notification
+
+### Notifications aux participants
+- [ ] Système d'abonnement aux notifications pour les équipes
+- [ ] Formulaire d'inscription avec email/téléphone
+- [ ] Page de gestion des préférences de notification
+- [ ] Désabonnement facile

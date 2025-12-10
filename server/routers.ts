@@ -1,7 +1,8 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
+import { notifyOwner } from "./_core/notification";
 import { z } from "zod";
 import { nanoid } from "nanoid";
 import { storagePut } from "./storage";
@@ -67,6 +68,12 @@ export const appRouter = router({
           startDate: input.startDate ? new Date(input.startDate) : undefined,
           endDate: input.endDate ? new Date(input.endDate) : undefined,
           publicUrl,
+        });
+
+        // Send notification
+        await notifyOwner({
+          title: "Nouveau tournoi créé 🏆",
+          content: `Le tournoi "${input.name}" a été créé avec succès. Vous pouvez maintenant ajouter des équipes et configurer le calendrier.`,
         });
 
         return { id: tournamentId, slug, publicUrl };
@@ -455,6 +462,13 @@ export const appRouter = router({
           score2: input.score2,
           status: "completed",
         });
+
+        // Send notification
+        await notifyOwner({
+          title: "Nouveau score enregistré ⚽",
+          content: `Un score a été enregistré : ${input.score1} - ${input.score2}`,
+        });
+
         return { success: true };
       }),
   }),
@@ -553,6 +567,60 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         await db.deleteSponsor(input.id);
         return { success: true };
+      }),
+  }),
+
+  notifications: router({
+    // Notify owner when a new tournament is created
+    notifyTournamentCreated: protectedProcedure
+      .input(z.object({ tournamentName: z.string() }))
+      .mutation(async ({ input }) => {
+        const success = await notifyOwner({
+          title: "Nouveau tournoi créé",
+          content: `Le tournoi "${input.tournamentName}" a été créé avec succès.`,
+        });
+        return { success };
+      }),
+
+    // Notify owner when a team is added
+    notifyTeamAdded: protectedProcedure
+      .input(z.object({ tournamentName: z.string(), teamName: z.string() }))
+      .mutation(async ({ input }) => {
+        const success = await notifyOwner({
+          title: "Nouvelle équipe ajoutée",
+          content: `L'équipe "${input.teamName}" a été ajoutée au tournoi "${input.tournamentName}".`,
+        });
+        return { success };
+      }),
+
+    // Notify owner when a match schedule is updated
+    notifyScheduleUpdated: protectedProcedure
+      .input(z.object({ tournamentName: z.string(), matchCount: z.number() }))
+      .mutation(async ({ input }) => {
+        const success = await notifyOwner({
+          title: "Calendrier mis à jour",
+          content: `Le calendrier du tournoi "${input.tournamentName}" a été mis à jour (${input.matchCount} matchs).`,
+        });
+        return { success };
+      }),
+
+    // Notify owner when a score is submitted
+    notifyScoreSubmitted: protectedProcedure
+      .input(
+        z.object({
+          tournamentName: z.string(),
+          team1Name: z.string(),
+          team2Name: z.string(),
+          score1: z.number(),
+          score2: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const success = await notifyOwner({
+          title: "Nouveau score enregistré",
+          content: `${input.team1Name} ${input.score1} - ${input.score2} ${input.team2Name} dans le tournoi "${input.tournamentName}".`,
+        });
+        return { success };
       }),
   }),
 });
