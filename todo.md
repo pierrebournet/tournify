@@ -260,3 +260,34 @@
 - [ ] Export des résultats en PDF
 - [ ] Export en format CSV/Excel
 - [ ] Génération de rapport de tournoi
+
+## Nouvelles Fonctionnalités - Page Publique
+
+### Affichage des Données en Temps Réel
+- [x] Route publique accessible sans authentification
+- [x] Affichage des informations du tournoi (nom, dates, sport, lieu)
+- [x] Onglet Classements avec tableaux par poule
+- [x] Onglet Calendrier avec liste des matchs
+- [x] Onglet Résultats avec scores finaux
+- [x] Mise à jour automatique des données (polling ou websocket)
+
+### Personnalisation et Design
+- [x] Application de la couleur principale du tournoi
+- [x] Affichage du logo du tournoi
+- [x] Affichage de l'image d'arrière-plan
+- [x] Section sponsors avec logos
+- [x] Design responsive pour mobile et tablette
+- [ ] Mode sombre/clair selon les préférences
+
+### URL Unique et Partage
+- [x] Génération d'URL unique par tournoi (slug ou ID)
+- [ ] Génération de code QR pour partage rapide
+- [x] Bouton de copie du lien
+- [ ] Partage sur réseaux sociaux
+- [ ] Compteur de visiteurs
+
+### Fonctionnalités Supplémentaires
+- [ ] Recherche d'équipe dans les classements
+- [ ] Filtrage des matchs par jour/terrain/poule
+- [ ] Vue diaporama pour affichage sur grand écran
+- [ ] Export PDF du classement pour impression
