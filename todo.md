@@ -324,3 +324,10 @@
 - [ ] Formulaire d'inscription avec email/téléphone
 - [ ] Page de gestion des préférences de notification
 - [ ] Désabonnement facile
+
+## Bug Fixes
+
+### Correction erreur SQL création de match
+- [x] Corriger l'insertion dans la table matches avec les valeurs par défaut manquantes
+- [x] Vérifier que tous les champs obligatoires sont fournis
+- [x] Tester la création de match manuellement

@@ -414,14 +414,24 @@ export const appRouter = router({
           team1Id: z.number().optional(),
           team2Id: z.number().optional(),
           scheduledTime: z.string().optional(),
-          fieldId: z.number().optional(),
+          fieldId: z.number(),
           matchNumber: z.string().optional(),
         })
       )
       .mutation(async ({ input }) => {
         const matchId = await db.createMatch({
-          ...input,
-          scheduledTime: input.scheduledTime ? new Date(input.scheduledTime) : undefined,
+          tournamentId: input.tournamentId,
+          phaseId: input.phaseId,
+          poolId: input.poolId ?? null,
+          bracketId: input.bracketId ?? null,
+          team1Id: input.team1Id ?? null,
+          team2Id: input.team2Id ?? null,
+          scheduledTime: input.scheduledTime ? new Date(input.scheduledTime) : null,
+          fieldId: input.fieldId,
+          matchNumber: input.matchNumber ?? null,
+          score1: null,
+          score2: null,
+          status: "scheduled",
         } as any);
         return { id: matchId };
       }),
