@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 import type { Tournament } from "@shared/types";
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, useDroppable } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, Shuffle, Trash2 } from "lucide-react";
@@ -27,6 +27,36 @@ interface Team {
 }
 
 const EMOJI_OPTIONS = ["⚽", "🏀", "🏐", "🎾", "🏈", "⭐", "🔥", "⚡", "🏆", "🎯", "💎", "🌟"];
+
+function DroppablePoolCard({ pool, isSelected, onClick, teamCount }: { pool: { id: number; name: string; emoji: string }; isSelected: boolean; onClick: () => void; teamCount: number }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `pool-${pool.id}`,
+    data: { poolId: pool.id },
+  });
+
+  return (
+    <Card
+      ref={setNodeRef}
+      className={`cursor-pointer transition-all ${
+        isSelected ? "ring-2 ring-primary" : ""
+      } ${
+        isOver ? "ring-2 ring-green-500 bg-green-50 dark:bg-green-950" : ""
+      }`}
+      onClick={onClick}
+    >
+      <CardHeader>
+        <CardTitle className="text-lg">
+          {pool.emoji} {pool.name}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          {teamCount} équipe(s)
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
 function SortableTeamItem({ team }: { team: Team }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -190,7 +220,23 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveTeamId(null);
-    // Drag & drop logic will be implemented when teams are assigned
+    
+    const { active, over } = event;
+    
+    if (!over) return;
+    
+    // Check if dropped over a pool
+    if (over.id.toString().startsWith('pool-')) {
+      const poolId = (over.data.current as { poolId: number })?.poolId;
+      const teamId = active.id as number;
+      
+      if (poolId && teamId) {
+        assignTeamsMutation.mutate({
+          poolId,
+          teamIds: [teamId],
+        });
+      }
+    }
   };
 
   const handleRandomDraw = () => {
@@ -326,6 +372,11 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
               </TabsList>
 
               <TabsContent value="pools" className="space-y-4">
+                <DndContext
+                  collisionDetection={closestCenter}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                >
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -390,33 +441,29 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
                   </CardHeader>
                   <CardContent>
                     {pools && pools.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {pools.map((pool) => (
-                          <Card
-                            key={pool.id}
-                            className={`cursor-pointer transition-all ${
-                              selectedPoolId === pool.id ? "ring-2 ring-primary" : ""
-                            }`}
-                            onClick={() => setSelectedPoolId(pool.id)}
-                          >
-                            <CardHeader>
-                              <CardTitle className="text-lg">
-                                {pool.emoji} {pool.name}
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <p className="text-sm text-muted-foreground">
-                                {poolTeams?.length || 0} équipe(s)
-                              </p>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        Aucune poule créée
-                      </div>
-                    )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {pools.map((pool) => {
+                            // Count teams in this specific pool
+                            const poolTeamCount = phaseAssignedTeams?.filter(t => 
+                              poolTeams?.some(pt => pt.id === t.id)
+                            ).length || 0;
+                            
+                            return (
+                              <DroppablePoolCard
+                                key={pool.id}
+                                pool={pool}
+                                isSelected={selectedPoolId === pool.id}
+                                onClick={() => setSelectedPoolId(pool.id)}
+                                teamCount={selectedPoolId === pool.id ? (poolTeams?.length || 0) : 0}
+                              />
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          Aucune poule créée
+                        </div>
+                      )}
                   </CardContent>
                 </Card>
 
@@ -430,12 +477,7 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <DndContext
-                        collisionDetection={closestCenter}
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                      >
-                        <div className="space-y-2">
+                      <div className="space-y-2">
                           <SortableContext
                             items={unassignedTeams.map(t => t.id)}
                             strategy={verticalListSortingStrategy}
@@ -445,14 +487,6 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
                             ))}
                           </SortableContext>
                         </div>
-                        <DragOverlay>
-                          {activeTeamId && (
-                            <div className="p-3 bg-card border border-border rounded-lg shadow-lg">
-                              {teams?.find(t => t.id === activeTeamId)?.name}
-                            </div>
-                          )}
-                        </DragOverlay>
-                      </DndContext>
                       {unassignedTeams.length === 0 && (
                         <div className="text-center py-8 text-muted-foreground">
                           Toutes les équipes sont assignées
@@ -461,6 +495,14 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
                     </CardContent>
                   </Card>
                 )}
+                  <DragOverlay>
+                    {activeTeamId && (
+                      <div className="p-3 bg-card border border-border rounded-lg shadow-lg">
+                        {teams?.find(t => t.id === activeTeamId)?.name}
+                      </div>
+                    )}
+                  </DragOverlay>
+                </DndContext>
               </TabsContent>
 
               <TabsContent value="standings">

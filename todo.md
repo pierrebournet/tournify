@@ -366,3 +366,6 @@
 
 ## Bug - Génération automatique de matchs après tirage au sort
 - [x] Corriger l'erreur SQL lors de la génération automatique des matchs (valeurs manquantes dans l'insertion)
+
+## Bug - Drag & Drop des équipes vers les poules
+- [x] Corriger le drag & drop qui ne fonctionne pas pour assigner les équipes aux poules (les équipes ne s'insèrent pas dans la poule choisie)
