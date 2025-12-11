@@ -33,6 +33,7 @@ export default function CalendarTab({ tournamentId }: CalendarTabProps) {
   const [activeMatchId, setActiveMatchId] = useState<number | null>(null);
   
   const [generateConfig, setGenerateConfig] = useState({
+    phaseId: "",
     poolId: "",
     startTime: "",
     matchDuration: 20,
@@ -47,9 +48,10 @@ export default function CalendarTab({ tournamentId }: CalendarTabProps) {
 
   const { data: fields } = trpc.fields.list.useQuery({ tournamentId });
   const { data: matches } = trpc.matches.list.useQuery({ tournamentId });
+  const { data: phases } = trpc.phases.list.useQuery({ tournamentId });
   const { data: pools } = trpc.pools.list.useQuery(
-    { phaseId: 0 },
-    { enabled: false }
+    { phaseId: generateConfig.phaseId ? parseInt(generateConfig.phaseId) : 0 },
+    { enabled: !!generateConfig.phaseId }
   );
 
   const createFieldMutation = trpc.fields.create.useMutation({
@@ -93,6 +95,11 @@ export default function CalendarTab({ tournamentId }: CalendarTabProps) {
   };
 
   const handleGenerateMatches = () => {
+    if (!generateConfig.phaseId) {
+      toast.error("Veuillez sélectionner une phase");
+      return;
+    }
+    
     if (!generateConfig.startTime || !fields || fields.length === 0) {
       toast.error("Veuillez configurer l'heure de début et ajouter au moins un terrain");
       return;
@@ -213,6 +220,45 @@ export default function CalendarTab({ tournamentId }: CalendarTabProps) {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phase">Phase *</Label>
+                      <Select
+                        value={generateConfig.phaseId}
+                        onValueChange={(value) => setGenerateConfig({ ...generateConfig, phaseId: value, poolId: "" })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez une phase" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {phases?.map((phase) => (
+                            <SelectItem key={phase.id} value={phase.id.toString()}>
+                              {phase.name} ({phase.type === "pool" ? "Poules" : phase.type === "bracket" ? "Élimination" : "Amicaux"})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {generateConfig.phaseId && pools && pools.length > 0 && (
+                      <div className="space-y-2">
+                        <Label htmlFor="pool">Poule (optionnel)</Label>
+                        <Select
+                          value={generateConfig.poolId}
+                          onValueChange={(value) => setGenerateConfig({ ...generateConfig, poolId: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Toutes les poules" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="">Toutes les poules</SelectItem>
+                            {pools.map((pool) => (
+                              <SelectItem key={pool.id} value={pool.id.toString()}>
+                                {pool.emoji} {pool.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <Label htmlFor="start-time">Heure de début</Label>
                       <Input

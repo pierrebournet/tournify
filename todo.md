@@ -373,3 +373,8 @@
 ## Amélioration UX - Drag & Drop des équipes
 - [x] Afficher la liste "Équipes non assignées" en permanence (sans nécessiter de sélectionner une poule)
 - [x] Rendre le drag & drop plus intuitif et visible
+
+## Amélioration - Génération automatique du calendrier
+- [x] Ajouter un sélecteur de phase dans la boîte de dialogue de génération
+- [x] Ajouter un sélecteur de poule (optionnel) pour générer les matchs d'une poule spécifique
+- [x] Résoudre l'erreur "Une phase est requise pour générer des matchs"
