@@ -468,7 +468,7 @@ export default function StandingsTab({ tournament }: StandingsTabProps) {
                 </Card>
 
                 {/* Team Assignment */}
-                {selectedPoolId && (
+                {pools && pools.length > 0 && (
                   <Card>
                     <CardHeader>
                       <CardTitle>Équipes non assignées</CardTitle>

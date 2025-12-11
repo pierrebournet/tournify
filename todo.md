@@ -369,3 +369,7 @@
 
 ## Bug - Drag & Drop des équipes vers les poules
 - [x] Corriger le drag & drop qui ne fonctionne pas pour assigner les équipes aux poules (les équipes ne s'insèrent pas dans la poule choisie)
+
+## Amélioration UX - Drag & Drop des équipes
+- [x] Afficher la liste "Équipes non assignées" en permanence (sans nécessiter de sélectionner une poule)
+- [x] Rendre le drag & drop plus intuitif et visible
