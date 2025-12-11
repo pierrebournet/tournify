@@ -28,7 +28,7 @@ interface Team {
 
 const EMOJI_OPTIONS = ["⚽", "🏀", "🏐", "🎾", "🏈", "⭐", "🔥", "⚡", "🏆", "🎯", "💎", "🌟"];
 
-function DroppablePoolCard({ pool, isSelected, onClick, teamCount }: { pool: { id: number; name: string; emoji: string }; isSelected: boolean; onClick: () => void; teamCount: number }) {
+function DroppablePoolCard({ pool, isSelected, onClick, teamCount }: { pool: { id: number; name: string; emoji: string | null }; isSelected: boolean; onClick: () => void; teamCount: number }) {
   const { setNodeRef, isOver } = useDroppable({
     id: `pool-${pool.id}`,
     data: { poolId: pool.id },

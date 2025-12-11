@@ -378,3 +378,7 @@
 - [x] Ajouter un sélecteur de phase dans la boîte de dialogue de génération
 - [x] Ajouter un sélecteur de poule (optionnel) pour générer les matchs d'une poule spécifique
 - [x] Résoudre l'erreur "Une phase est requise pour générer des matchs"
+
+## Bug Critique - Drag & Drop et Génération Automatique
+- [x] Le drag & drop ne fonctionne pas pour assigner les équipes aux poules
+- [x] La génération automatique du calendrier ne fonctionne pas

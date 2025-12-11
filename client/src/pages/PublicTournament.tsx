@@ -62,8 +62,8 @@ export default function PublicTournament() {
       <div 
         className="relative bg-gradient-to-r from-orange-500 to-red-500 text-white py-16 px-4"
         style={{
-          background: tournament.backgroundImageUrl 
-            ? `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${tournament.backgroundImageUrl}) center/cover`
+          background: tournament.backgroundUrl 
+            ? `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${tournament.backgroundUrl}) center/cover`
             : `linear-gradient(to right, ${primaryColor}, ${primaryColor}dd)`,
         }}
       >
@@ -92,10 +92,10 @@ export default function PublicTournament() {
                     </span>
                   </div>
                 )}
-                {tournament.locations && (
+                {tournament.locations && tournament.locations.length > 0 && (
                   <div className="flex items-center gap-2">
                     <MapPin className="h-5 w-5" />
-                    <span>{tournament.locations}</span>
+                    <span>{tournament.locations.map(loc => loc.name || loc.address).join(", ")}</span>
                   </div>
                 )}
               </div>

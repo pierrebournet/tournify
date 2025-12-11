@@ -107,7 +107,7 @@ export default function CalendarTab({ tournamentId }: CalendarTabProps) {
 
     generateMatchesMutation.mutate({
       tournamentId,
-      poolId: generateConfig.poolId ? parseInt(generateConfig.poolId) : undefined,
+      poolId: generateConfig.poolId && generateConfig.poolId !== "all" ? parseInt(generateConfig.poolId) : undefined,
       startTime: generateConfig.startTime,
       matchDuration: generateConfig.matchDuration,
       breakDuration: generateConfig.breakDuration,
@@ -249,7 +249,7 @@ export default function CalendarTab({ tournamentId }: CalendarTabProps) {
                             <SelectValue placeholder="Toutes les poules" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Toutes les poules</SelectItem>
+                            <SelectItem value="all">Toutes les poules</SelectItem>
                             {pools.map((pool) => (
                               <SelectItem key={pool.id} value={pool.id.toString()}>
                                 {pool.emoji} {pool.name}

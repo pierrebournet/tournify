@@ -113,8 +113,8 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
           const base64 = reader.result as string;
           await uploadLogoMutation.mutateAsync({
             teamId: result.id,
-            logoData: base64,
-            fileName: logoFile.name,
+            fileData: base64.split(',')[1], // Remove data:image/...;base64, prefix
+            mimeType: logoFile.type,
           });
           refetchTeams();
         };
@@ -391,11 +391,11 @@ export default function ParticipantsTab({ tournamentId }: ParticipantsTabProps) 
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {admins.map((admin) => (
-                    <TableRow key={admin.id}>
-                      <TableCell>{admin.userName}</TableCell>
-                      <TableCell>{admin.userEmail || "-"}</TableCell>
-                      <TableCell>{admin.permissions || "Toutes"}</TableCell>
+                  {admins.map((item) => (
+                    <TableRow key={item.admin.id}>
+                      <TableCell>{item.user.name}</TableCell>
+                      <TableCell>{item.user.email || "-"}</TableCell>
+                      <TableCell>{item.admin.permissions?.join(", ") || "Toutes"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
