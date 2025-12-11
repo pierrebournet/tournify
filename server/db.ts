@@ -541,6 +541,11 @@ export async function generatePoolMatches(params: {
 
   const { tournamentId, poolId, startTime, matchDuration, breakDuration, fieldIds } = params;
 
+  // Validate fieldIds
+  if (!fieldIds || fieldIds.length === 0) {
+    throw new Error("Au moins un terrain est requis pour générer des matchs");
+  }
+
   // Get teams from pool
   const teams = poolId ? await getPoolTeams(poolId) : await getTournamentTeams(tournamentId);
   
@@ -573,11 +578,15 @@ export async function generatePoolMatches(params: {
 
   for (const match of matchList) {
     const fieldId = fieldIds[fieldIndex % fieldIds.length];
+    
+    if (!fieldId) {
+      throw new Error(`Field ID invalide à l'index ${fieldIndex}`);
+    }
 
-    const insertData: any = {
+    const insertData = {
       tournamentId,
       phaseId,
-      poolId: poolId || null,
+      poolId: poolId ?? null,
       bracketId: null,
       team1Id: match.team1Id,
       team2Id: match.team2Id,
@@ -585,7 +594,7 @@ export async function generatePoolMatches(params: {
       score2: null,
       scheduledTime: currentTime,
       fieldId,
-      status: "scheduled",
+      status: "scheduled" as const,
       matchNumber: null,
     };
 

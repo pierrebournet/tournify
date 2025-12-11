@@ -363,3 +363,6 @@
 
 ## Bug Critique - Tirage au Sort
 - [x] Corriger le bug de duplication d'équipes lors du tirage au sort (ajoute 4 équipes à chaque clic au lieu de redistribuer les existantes)
+
+## Bug - Génération automatique de matchs après tirage au sort
+- [x] Corriger l'erreur SQL lors de la génération automatique des matchs (valeurs manquantes dans l'insertion)
